@@ -5,9 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Calculadora Studio Goen</title>
 <style>
-:root{--bg:#e8dfd2;--paper:#fff7eb;--black:#111;--red:#d94132;--muted:#5e554b;--line:rgba(17,17,17,.14);--sky:#6cace4}
+:root{
+  --bg:#e8dfd2;--paper:#fff7eb;--black:#111;--red:#d94132;
+  --muted:#5e554b;--line:rgba(17,17,17,.14);--sky:#6cace4;
+}
 *{box-sizing:border-box}
-body{margin:0;background:radial-gradient(circle at top left,rgba(217,65,50,.16),transparent 28%),linear-gradient(180deg,#efe5d7,#e8dfd2 60%,#d8cbb9);font-family:Arial,Helvetica,sans-serif;color:var(--black)}
+body{
+  margin:0;
+  background:radial-gradient(circle at top left,rgba(217,65,50,.16),transparent 28%),
+  linear-gradient(180deg,#efe5d7,#e8dfd2 60%,#d8cbb9);
+  font-family:Arial,Helvetica,sans-serif;color:var(--black)
+}
 .wrap{width:min(1120px,calc(100% - 34px));margin:auto}
 .nav{position:sticky;top:0;z-index:20;background:rgba(232,223,210,.88);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
 .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:12px 0}
@@ -35,6 +43,8 @@ h1{font-size:clamp(48px,9vw,102px);line-height:.85;letter-spacing:-.07em;text-tr
 .unlocked{animation:pop .35s ease}.disclaimer{padding:18px 22px 24px;color:var(--muted);font-weight:800;line-height:1.45;font-size:14px}
 .whatsapp{display:flex;justify-content:center;align-items:center;width:100%;min-height:52px;margin-top:18px;border-radius:14px;background:#25D366;color:#07140b;text-decoration:none;font-weight:950;text-transform:uppercase;transition:.2s}.whatsapp:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,.25)}
 .clear{width:100%;margin-top:10px;background:transparent;border:1px solid rgba(255,247,235,.25);color:var(--paper);border-radius:14px;min-height:46px;font-weight:900;text-transform:uppercase;cursor:pointer}
+.empty{padding:24px;color:var(--muted);font-weight:900}
+.hidden{display:none!important}
 @keyframes pop{0%{transform:scale(.85);opacity:.7}55%{transform:scale(1.18)}100%{transform:scale(1);opacity:1}}
 @media(max-width:900px){.main{grid-template-columns:1fr}.summary{position:relative;top:auto}}@media(max-width:560px){.nav a{display:none}.row{grid-template-columns:1fr}.controls{justify-content:flex-start}.total strong{font-size:38px}}
 </style>
@@ -43,18 +53,38 @@ h1{font-size:clamp(48px,9vw,102px);line-height:.85;letter-spacing:-.07em;text-tr
 <nav class="nav"><div class="wrap nav-inner"><img src="assets/logo.png" alt="Studio Goen"><a href="https://wa.me/543416743155">WhatsApp</a></div></nav>
 <header class="hero"><div class="wrap"><span class="eyebrow">Calculadora de presupuesto</span><h1>Armá tu pedido.</h1><p class="lead">Elegí productos, cantidades y obtené un estimado rápido para empezar a construir una imagen más profesional para tu negocio.</p></div></header>
 <main class="wrap main">
-<section class="panel"><div class="panel-head"><h2>Productos</h2></div><div class="products">
-<div class="row"><div><div class="name">Remeras</div><div class="meta">$28.600 c/u · Personalizadas para tu marca</div><div class="argentina"><strong>Promo Mundial 🇦🇷</strong><small id="argRowText">Te faltan 5 remeras para desbloquear el regalo.</small><div class="stars" id="argStars">☆☆☆</div><div class="argBar"><div class="argBarFill" id="argRowProgress"></div></div></div></div><div class="controls"><button onclick="changeQty('remeras',-1)">−</button><input id="remeras" type="number" min="0" value="0" oninput="calculate()"><button onclick="changeQty('remeras',1)">+</button></div></div>
-<div class="row"><div><div class="name">Buzos</div><div class="meta">$59.500 c/u · Buzos canguro personalizados</div></div><div class="controls"><button onclick="changeQty('buzos',-1)">−</button><input id="buzos" type="number" min="0" value="0" oninput="calculate()"><button onclick="changeQty('buzos',1)">+</button></div></div>
-<div class="row"><div><div class="name">Tazas</div><div class="meta">$9.900 c/u · Compra mínima: 5 unidades</div></div><div class="controls"><button onclick="changeQty('tazas',-1)">−</button><input id="tazas" type="number" min="0" value="0" oninput="enforceMin('tazas',5);calculate()"><button onclick="changeQty('tazas',1)">+</button></div></div>
-<div class="row"><div><div class="name">Stickers UV</div><div class="meta">Elegí pack: 50u $20.000 · 100u $35.000 · 300u $90.000</div></div><select class="select" id="stickers" onchange="calculate()"><option value="0">0</option><option value="50">50 u.</option><option value="100">100 u.</option><option value="300">300 u.</option></select></div>
-<div class="row"><div><div class="name">Llaveros 3D</div><div class="meta">$1.500 c/u · Compra mínima: 30 unidades</div></div><div class="controls"><button onclick="changeQty('llaveros',-30)">−</button><input id="llaveros" type="number" min="0" value="0" oninput="enforceMin('llaveros',30);calculate()"><button onclick="changeQty('llaveros',30)">+</button></div></div>
-<div class="row"><div><div class="name">Gorras</div><div class="meta">$18.600 c/u · Compra mínima: 5 unidades</div></div><div class="controls"><button onclick="changeQty('gorras',-1)">−</button><input id="gorras" type="number" min="0" value="0" oninput="enforceMin('gorras',5);calculate()"><button onclick="changeQty('gorras',1)">+</button></div></div>
-</div><div class="disclaimer">El valor es estimado. El precio final puede variar según diseño, técnica, medidas, complejidad y disponibilidad.</div></section>
-<aside class="summary"><h2>Resumen</h2><div id="items"></div><div class="total" id="totalBox"><small>Total estimado</small><strong id="total">$0</strong></div><p class="note" id="warnings">Agregá productos para calcular un presupuesto estimado.</p>
-<div class="worldCupBox"><h3>Promo Mundial</h3><p>Comprando 5 remeras o más, te llevás una remera de Argentina de regalo.</p><div class="stars" id="argStarsSummary">☆☆☆</div><div class="progressOuter"><div class="progressInner" id="argSummaryProgress"></div></div><div class="worldGift" id="argSummaryText">Te faltan 5 remeras para desbloquear el regalo.</div></div>
-<div class="benefitBox"><h3>Beneficios por compra</h3><p id="benefitText">Te faltan $200.000 para desbloquear 20 stickers UV de regalo.</p><div class="progressOuter"><div class="progressInner" id="progress"></div></div><div class="gift" id="gift">Próximo beneficio: 20 stickers UV de regalo</div></div>
-<a class="whatsapp" id="wa" href="https://wa.me/543416743155">Enviar por WhatsApp</a><button class="clear" onclick="clearAll()">Limpiar</button></aside>
+<section class="panel">
+  <div class="panel-head"><h2>Productos</h2></div>
+  <div class="products" id="products">
+    <div class="empty">Cargando productos...</div>
+  </div>
+  <div class="disclaimer">El valor es estimado. El precio final puede variar según diseño, técnica, medidas, complejidad y disponibilidad.</div>
+</section>
+
+<aside class="summary">
+  <h2>Resumen</h2>
+  <div id="items"></div>
+  <div class="total" id="totalBox"><small>Total estimado</small><strong id="total">$0</strong></div>
+  <p class="note" id="warnings">Agregá productos para calcular un presupuesto estimado.</p>
+
+  <div class="worldCupBox hidden" id="worldCupBox">
+    <h3>Promo Mundial</h3>
+    <p id="argIntro">Comprando 5 remeras o más, te llevás una remera de Argentina de regalo.</p>
+    <div class="stars" id="argStarsSummary">☆☆☆</div>
+    <div class="progressOuter"><div class="progressInner" id="argSummaryProgress"></div></div>
+    <div class="worldGift" id="argSummaryText">Te faltan 5 remeras para desbloquear el regalo.</div>
+  </div>
+
+  <div class="benefitBox" id="benefitBox">
+    <h3>Beneficios por compra</h3>
+    <p id="benefitText">Cargando beneficios...</p>
+    <div class="progressOuter"><div class="progressInner" id="progress"></div></div>
+    <div class="gift" id="gift">Cargando...</div>
+  </div>
+
+  <a class="whatsapp" id="wa" href="https://wa.me/543416743155">Enviar por WhatsApp</a>
+  <button class="clear" onclick="clearAll()">Limpiar</button>
+</aside>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -63,321 +93,344 @@ const SUPABASE_URL = "https://fojygcedkrsppdtxtylb.supabase.co";
 const SUPABASE_KEY = "sb_publishable_ROSe3WkzvkZ5Vsn932UoBg_IK6t5YZs";
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-let productRows = [];
-let benefitRows = [];
-let promoRows = [];
-
-let prices = {
-  remeras: 28600,
-  buzos: 59500,
-  tazas: 9900,
-  llaveros: 1500,
-  gorras: 18600
-};
-
-let names = {
-  remeras: "Remeras",
-  buzos: "Buzos",
-  tazas: "Tazas",
-  stickers: "Stickers UV",
-  llaveros: "Llaveros 3D",
-  gorras: "Gorras"
-};
-
-let stickerPacks = {
-  50: 20000,
-  100: 35000,
-  300: 90000
-};
-
-let minimums = {
-  tazas: 5,
-  llaveros: 30,
-  gorras: 5
-};
-
+let products = {};
+let activeOrder = [];
+let stickerPacks = {};
+let benefits = [];
+let promos = [];
 let lastTotal = -1;
 let lastBenefit = "";
 let lastArg = false;
 
-function money(n) {
-  return "$" + Math.round(n).toLocaleString("es-AR");
-}
+const fallbackProducts = [
+  {id:"remeras",name:"Remeras",price:28600,min_qty:1,step_qty:1,active:true},
+  {id:"buzos",name:"Buzos",price:59500,min_qty:1,step_qty:1,active:true},
+  {id:"tazas",name:"Tazas",price:9900,min_qty:5,step_qty:1,active:true},
+  {id:"stickers_50",name:"Stickers UV 50 unidades",price:20000,min_qty:50,step_qty:50,active:true},
+  {id:"stickers_100",name:"Stickers UV 100 unidades",price:35000,min_qty:100,step_qty:100,active:true},
+  {id:"stickers_300",name:"Stickers UV 300 unidades",price:90000,min_qty:300,step_qty:300,active:true},
+  {id:"llaveros",name:"Llaveros 3D",price:1500,min_qty:30,step_qty:30,active:true},
+  {id:"gorras",name:"Gorras",price:18600,min_qty:5,step_qty:1,active:true}
+];
 
-async function loadSupabaseData() {
-  try {
-    const [productsRes, benefitsRes, promosRes] = await Promise.all([
-      db.from("products").select("*").eq("active", true),
-      db.from("benefits").select("*").eq("active", true).order("min_total"),
-      db.from("promos").select("*").eq("active", true)
+const productLabels = {
+  remeras: "Personalizadas para tu marca",
+  buzos: "Buzos canguro personalizados",
+  tazas: "Compra mínima: {min} unidades",
+  llaveros: "Compra mínima: {min} unidades",
+  gorras: "Compra mínima: {min} unidades"
+};
+
+const order = ["remeras","buzos","tazas","stickers","llaveros","gorras"];
+
+function money(n){return "$"+Math.round(n).toLocaleString("es-AR")}
+function getProduct(id){return products[id]}
+function getQty(id){const el=document.getElementById(id); return el ? Math.max(0,parseInt(el.value||"0",10)) : 0}
+function getStickerQty(){const el=document.getElementById("stickers"); return el ? Math.max(0,parseInt(el.value||"0",10)) : 0}
+function stickerPrice(q){return stickerPacks[q]?.price || 0}
+function bump(el){if(!el)return; el.classList.remove("unlocked"); void el.offsetWidth; el.classList.add("unlocked")}
+
+async function loadData(){
+  try{
+    const [pr, br, pm] = await Promise.all([
+      db.from("products").select("*").eq("active",true),
+      db.from("benefits").select("*").eq("active",true).order("min_total"),
+      db.from("promos").select("*").eq("active",true)
     ]);
-
-    if(productsRes.error) throw productsRes.error;
-    if(benefitsRes.error) throw benefitsRes.error;
-    if(promosRes.error) throw promosRes.error;
-
-    productRows = productsRes.data || [];
-    benefitRows = productsRes.data ? (benefitsRes.data || []) : [];
-    promoRows = promosRes.data || [];
-
-    productRows.forEach(p => {
-      if(p.id === "stickers_50") stickerPacks[50] = Number(p.price);
-      else if(p.id === "stickers_100") stickerPacks[100] = Number(p.price);
-      else if(p.id === "stickers_300") stickerPacks[300] = Number(p.price);
-      else {
-        prices[p.id] = Number(p.price);
-        names[p.id] = p.name;
-        if(Number(p.min_qty) > 1) minimums[p.id] = Number(p.min_qty);
-      }
-    });
-
-    updateStaticPriceTexts();
-    calculate();
-  } catch (err) {
-    console.error("Error cargando Supabase:", err);
-    const warnings = document.getElementById("warnings");
-    if(warnings) warnings.textContent = "No se pudieron cargar los precios actualizados. Se muestran valores de referencia.";
-    calculate();
+    if(pr.error) throw pr.error;
+    if(br.error) throw br.error;
+    if(pm.error) throw pm.error;
+    setupProducts(pr.data || []);
+    benefits = br.data || [];
+    promos = pm.data || [];
+  }catch(e){
+    console.error(e);
+    setupProducts(fallbackProducts);
+    benefits = [
+      {min_total:200000,gift:"20 stickers UV de regalo"},
+      {min_total:400000,gift:"20 llaveros 3D de regalo"},
+      {min_total:700000,gift:"5 tazas personalizadas de regalo"}
+    ];
+    promos = [{id:"promo_mundial",name:"Promo Mundial",trigger_product:"remeras",trigger_qty:5,gift:"1 remera de Argentina de regalo",active:true}];
   }
+  renderProducts();
+  renderBenefitsVisibility();
+  calculate();
 }
 
-function updateStaticPriceTexts() {
-  const metaMap = {
-    remeras: `${money(prices.remeras)} c/u · Personalizadas para tu marca`,
-    buzos: `${money(prices.buzos)} c/u · Buzos canguro personalizados`,
-    tazas: `${money(prices.tazas)} c/u · Compra mínima: ${minimums.tazas || 5} unidades`,
-    llaveros: `${money(prices.llaveros)} c/u · Compra mínima: ${minimums.llaveros || 30} unidades`,
-    gorras: `${money(prices.gorras)} c/u · Compra mínima: ${minimums.gorras || 5} unidades`
-  };
+function setupProducts(rows){
+  products = {};
+  stickerPacks = {};
+  rows.forEach(p => {
+    if(p.id.startsWith("stickers_")) {
+      const qty = Number(p.min_qty || p.id.replace("stickers_",""));
+      stickerPacks[qty] = {...p, qty};
+    } else {
+      products[p.id] = p;
+    }
+  });
+  activeOrder = order.filter(id => id === "stickers" ? Object.keys(stickerPacks).length > 0 : !!products[id]);
+}
 
-  document.querySelectorAll(".row").forEach(row => {
-    const name = row.querySelector(".name")?.textContent?.toLowerCase() || "";
-    const meta = row.querySelector(".meta");
-    if(!meta) return;
-    if(name.includes("remeras")) meta.textContent = metaMap.remeras;
-    if(name.includes("buzos")) meta.textContent = metaMap.buzos;
-    if(name.includes("tazas")) meta.textContent = metaMap.tazas;
-    if(name.includes("llaveros")) meta.textContent = metaMap.llaveros;
-    if(name.includes("gorras")) meta.textContent = metaMap.gorras;
-    if(name.includes("stickers")) meta.textContent = `Elegí pack: 50u ${money(stickerPacks[50])} · 100u ${money(stickerPacks[100])} · 300u ${money(stickerPacks[300])}`;
+function renderProducts(){
+  const root = document.getElementById("products");
+  root.innerHTML = "";
+  if(activeOrder.length === 0){
+    root.innerHTML = '<div class="empty">No hay productos activos.</div>';
+    return;
+  }
+  activeOrder.forEach(id => {
+    if(id === "stickers") renderStickerRow(root);
+    else renderNormalRow(root, products[id]);
   });
 }
 
-function stickerPrice(q) {
-  return stickerPacks[q] || 0;
+function renderNormalRow(root, p){
+  const min = Number(p.min_qty || 1);
+  const step = Number(p.step_qty || 1);
+  const metaTemplate = productLabels[p.id] || "Producto personalizado para tu marca";
+  const meta = money(p.price) + " c/u · " + metaTemplate.replace("{min}", min);
+
+  const div = document.createElement("div");
+  div.className = "row";
+  div.innerHTML = `
+    <div>
+      <div class="name">${p.name}</div>
+      <div class="meta">${meta}</div>
+      ${p.id === "remeras" && getWorldPromo() ? argentinaHTML() : ""}
+    </div>
+    <div class="controls">
+      <button onclick="changeQty('${p.id}',-${step})">−</button>
+      <input id="${p.id}" type="number" min="0" value="0" oninput="enforceMin('${p.id}');calculate()">
+      <button onclick="changeQty('${p.id}',${step})">+</button>
+    </div>
+  `;
+  root.appendChild(div);
 }
 
-function getQty(id) {
-  return Math.max(0, parseInt(document.getElementById(id).value || "0", 10));
+function renderStickerRow(root){
+  const options = Object.values(stickerPacks).sort((a,b)=>a.qty-b.qty);
+  if(!options.length) return;
+  const optionHTML = ['<option value="0">0</option>'].concat(options.map(o => `<option value="${o.qty}">${o.qty} u.</option>`)).join("");
+  const meta = "Elegí pack: " + options.map(o => `${o.qty}u ${money(o.price)}`).join(" · ");
+  const div = document.createElement("div");
+  div.className = "row";
+  div.innerHTML = `
+    <div>
+      <div class="name">Stickers UV</div>
+      <div class="meta">${meta}</div>
+    </div>
+    <select class="select" id="stickers" onchange="calculate()">${optionHTML}</select>
+  `;
+  root.appendChild(div);
 }
 
-function enforceMin(id, min) {
+function argentinaHTML(){
+  const promo = getWorldPromo();
+  if(!promo) return "";
+  return `
+    <div class="argentina">
+      <strong>${promo.name} 🇦🇷</strong>
+      <small id="argRowText">Te faltan ${promo.trigger_qty} remeras para desbloquear el regalo.</small>
+      <div class="stars" id="argStars">☆☆☆</div>
+      <div class="argBar"><div class="argBarFill" id="argRowProgress"></div></div>
+    </div>
+  `;
+}
+
+function enforceMin(id){
+  const p = products[id];
+  if(!p) return;
   const input = document.getElementById(id);
-  let v = getQty(id);
+  const min = Number(p.min_qty || 1);
+  const v = getQty(id);
   if(v > 0 && v < min) input.value = min;
 }
 
-function changeQty(id, delta) {
+function changeQty(id, delta){
+  const p = products[id];
   const input = document.getElementById(id);
+  if(!p || !input) return;
+  const min = Number(p.min_qty || 1);
   const current = getQty(id);
   let next;
-
-  if(delta > 0 && minimums[id] && current === 0) next = minimums[id];
+  if(delta > 0 && min > 1 && current === 0) next = min;
   else next = current + delta;
-
   if(next < 0) next = 0;
-  if(minimums[id] && next > 0 && next < minimums[id]) next = 0;
-
+  if(min > 1 && next > 0 && next < min) next = 0;
   input.value = next;
   calculate();
 }
 
-function getBenefit(total) {
-  if(!benefitRows.length) {
-    if(total >= 700000) return {current:"5 tazas personalizadas de regalo",next:null,target:700000,previous:700000};
-    if(total >= 400000) return {current:"20 llaveros 3D de regalo",next:"5 tazas personalizadas de regalo",target:700000,previous:400000};
-    if(total >= 200000) return {current:"20 stickers UV de regalo",next:"20 llaveros 3D de regalo",target:400000,previous:200000};
-    return {current:null,next:"20 stickers UV de regalo",target:200000,previous:0};
+function renderBenefitsVisibility(){
+  document.getElementById("benefitBox").classList.toggle("hidden", benefits.length === 0);
+  const promo = getWorldPromo();
+  document.getElementById("worldCupBox").classList.toggle("hidden", !promo || !products[promo.trigger_product]);
+  if(promo){
+    const intro = document.getElementById("argIntro");
+    if(intro) intro.textContent = "Comprando " + promo.trigger_qty + " remeras o más, te llevás " + promo.gift + ".";
   }
+}
 
-  const rows = [...benefitRows].sort((a,b)=>Number(a.min_total)-Number(b.min_total));
-  let current = null;
-  let next = rows[0] || null;
-
-  for(let i=0;i<rows.length;i++) {
-    if(total >= Number(rows[i].min_total)) {
+function getBenefit(total){
+  if(!benefits.length) return {current:null,next:null,target:1,previous:0};
+  const rows = [...benefits].sort((a,b)=>Number(a.min_total)-Number(b.min_total));
+  let current = null, next = rows[0] || null;
+  for(let i=0;i<rows.length;i++){
+    if(total >= Number(rows[i].min_total)){
       current = rows[i];
       next = rows[i+1] || null;
     }
   }
-
-  if(current && !next) return {current: current.gift, next:null, target:Number(current.min_total), previous:Number(current.min_total)};
-  if(current && next) return {current: current.gift, next: next.gift, target:Number(next.min_total), previous:Number(current.min_total)};
-  return {current:null, next: next.gift, target:Number(next.min_total), previous:0};
+  if(current && !next) return {current:current.gift,next:null,target:Number(current.min_total),previous:Number(current.min_total)};
+  if(current && next) return {current:current.gift,next:next.gift,target:Number(next.min_total),previous:Number(current.min_total)};
+  return {current:null,next:next.gift,target:Number(next.min_total),previous:0};
 }
 
-function bump(el) {
-  el.classList.remove("unlocked");
-  void el.offsetWidth;
-  el.classList.add("unlocked");
-}
-
-function updateBenefits(total) {
+function updateBenefits(total){
+  if(!benefits.length) return "";
   const b = getBenefit(total);
   const txt = document.getElementById("benefitText");
   const bar = document.getElementById("progress");
   const gift = document.getElementById("gift");
-
-  let range = Math.max(1, b.target - b.previous);
-  bar.style.width = Math.min(100, Math.max(0, ((total - b.previous) / range) * 100)) + "%";
-
+  let range = Math.max(1,b.target-b.previous);
+  bar.style.width = Math.min(100,Math.max(0,((total-b.previous)/range)*100))+"%";
   let current = "";
-
-  if(total <= 0) {
+  if(total <= 0){
     txt.textContent = "Te faltan " + money(b.target) + " para desbloquear " + b.next + ".";
     gift.textContent = "Próximo beneficio: " + b.next;
-  } else if(b.current && !b.next) {
+  } else if(b.current && !b.next){
     txt.textContent = "🎉 Beneficio máximo desbloqueado.";
     gift.textContent = "Ganaste: " + b.current;
     bar.style.width = "100%";
     current = b.current;
-  } else if(b.current) {
-    txt.textContent = "🎉 Ganaste " + b.current + ". Te faltan " + money(b.target - total) + " para desbloquear " + b.next + ".";
+  } else if(b.current){
+    txt.textContent = "🎉 Ganaste " + b.current + ". Te faltan " + money(b.target-total) + " para desbloquear " + b.next + ".";
     gift.textContent = "Beneficio actual: " + b.current;
     current = b.current;
   } else {
-    txt.textContent = "Te faltan " + money(b.target - total) + " para desbloquear " + b.next + ".";
+    txt.textContent = "Te faltan " + money(b.target-total) + " para desbloquear " + b.next + ".";
     gift.textContent = "Próximo beneficio: " + b.next;
   }
-
-  if(current && current !== lastBenefit) {
-    bump(gift);
-    lastBenefit = current;
-  }
-
+  if(current && current !== lastBenefit){bump(gift); lastBenefit = current}
   return current;
 }
 
-function getWorldPromo() {
-  return promoRows.find(p => p.id === "promo_mundial") || {
-    name: "Promo Mundial",
-    trigger_product: "remeras",
-    trigger_qty: 5,
-    gift: "1 remera de Argentina de regalo",
-    active: true
-  };
+function getWorldPromo(){
+  return promos.find(p => p.id === "promo_mundial" && p.active !== false) || null;
 }
 
-function starHTML(q) {
-  const promo = getWorldPromo();
-  const needed = Number(promo.trigger_qty || 5);
-  let on = q >= needed ? 3 : q >= Math.ceil(needed * 0.6) ? 2 : q >= 1 ? 1 : 0;
-  return Array.from({length:3}, (_,i)=>i<on?'<span class="starOn">⭐</span>':'☆').join("");
+function starHTML(q, needed){
+  let on = q >= needed ? 3 : q >= Math.ceil(needed*.6) ? 2 : q >= 1 ? 1 : 0;
+  return Array.from({length:3},(_,i)=>i<on?'<span class="starOn">⭐</span>':'☆').join("");
 }
 
-function updateArgentina(qty) {
+function updateArgentina(){
   const promo = getWorldPromo();
+  if(!promo || !products[promo.trigger_product]) return "";
+  const qty = getQty(promo.trigger_product);
   const needed = Number(promo.trigger_qty || 5);
-  const gift = promo.gift || "1 remera de Argentina de regalo";
+  const pct = Math.min(100,(qty/needed)*100);
+  const rowProgress = document.getElementById("argRowProgress");
+  const summaryProgress = document.getElementById("argSummaryProgress");
+  const rowStars = document.getElementById("argStars");
+  const summaryStars = document.getElementById("argStarsSummary");
+  if(rowProgress) rowProgress.style.width = pct + "%";
+  if(summaryProgress) summaryProgress.style.width = pct + "%";
+  if(rowStars) rowStars.innerHTML = starHTML(qty, needed);
+  if(summaryStars) summaryStars.innerHTML = starHTML(qty, needed);
 
-  let pct = Math.min(100, (qty / needed) * 100);
-  document.getElementById("argRowProgress").style.width = pct + "%";
-  document.getElementById("argSummaryProgress").style.width = pct + "%";
-  document.getElementById("argStars").innerHTML = starHTML(qty);
-  document.getElementById("argStarsSummary").innerHTML = starHTML(qty);
-
-  let unlocked = qty >= needed;
-  let msg = unlocked ? "🎉 Ganaste " + gift + "." : "Te faltan " + (needed - qty) + " remeras para desbloquear el regalo.";
-
-  document.getElementById("argRowText").textContent = unlocked ? "🎉 Promo desbloqueada: " + gift + "." : msg;
-  document.getElementById("argSummaryText").textContent = msg;
-
-  if(unlocked && !lastArg) bump(document.getElementById("argSummaryText"));
+  const unlocked = qty >= needed;
+  const missing = Math.max(0, needed - qty);
+  const msg = unlocked ? "🎉 Ganaste " + promo.gift + "." : "Te faltan " + missing + " remeras para desbloquear el regalo.";
+  const rowText = document.getElementById("argRowText");
+  const summaryText = document.getElementById("argSummaryText");
+  if(rowText) rowText.textContent = unlocked ? "🎉 Promo desbloqueada: " + promo.gift + "." : msg;
+  if(summaryText) summaryText.textContent = msg;
+  if(unlocked && !lastArg) bump(summaryText);
   lastArg = unlocked;
-
-  return unlocked ? gift + " por " + promo.name : "";
+  return unlocked ? promo.gift + " por " + promo.name : "";
 }
 
-function calculate() {
-  const q = {
-    remeras: getQty("remeras"),
-    buzos: getQty("buzos"),
-    tazas: getQty("tazas"),
-    stickers: getQty("stickers"),
-    llaveros: getQty("llaveros"),
-    gorras: getQty("gorras")
-  };
+function calculate(){
+  let q = {}, totals = {};
 
-  let totals = {
-    remeras: q.remeras * prices.remeras,
-    buzos: q.buzos * prices.buzos,
-    tazas: q.tazas * prices.tazas,
-    stickers: stickerPrice(q.stickers),
-    llaveros: q.llaveros * prices.llaveros,
-    gorras: q.gorras * prices.gorras
-  };
+  activeOrder.forEach(id => {
+    if(id === "stickers"){
+      q.stickers = getStickerQty();
+      totals.stickers = stickerPrice(q.stickers);
+    } else {
+      q[id] = getQty(id);
+      totals[id] = q[id] * Number(products[id]?.price || 0);
+    }
+  });
 
-  let total = Object.values(totals).reduce((a,b)=>a+b,0);
+  const total = Object.values(totals).reduce((a,b)=>a+b,0);
   document.getElementById("total").textContent = money(total);
-
-  if(total !== lastTotal) {
+  if(total !== lastTotal){
     const box = document.getElementById("totalBox");
-    box.classList.remove("bump");
-    void box.offsetWidth;
-    box.classList.add("bump");
+    box.classList.remove("bump"); void box.offsetWidth; box.classList.add("bump");
     lastTotal = total;
   }
 
-  let benefit = updateBenefits(total);
-  let arg = updateArgentina(q.remeras);
+  const benefit = updateBenefits(total);
+  const arg = updateArgentina();
 
   const items = document.getElementById("items");
   items.innerHTML = "";
-
   Object.keys(q).forEach(k => {
-    if(q[k] > 0) {
+    if(q[k] > 0){
       let d = document.createElement("div");
       d.className = "line";
-      let label = k === "stickers" ? `${names[k]} - ${q[k]} unidades` : `${names[k]} x ${q[k]}`;
+      let label = k === "stickers" ? "Stickers UV - " + q[k] + " unidades" : (products[k]?.name || k) + " x " + q[k];
       d.innerHTML = `<span>${label}</span><span>${money(totals[k])}</span>`;
       items.appendChild(d);
     }
   });
 
-  if(arg) {
+  if(arg && products.remeras){
     let d = document.createElement("div");
     d.className = "line giftLine";
-    d.innerHTML = `<span>Remera Argentina (REGALO)<span class="giftValue">${money(prices.remeras)}</span></span><span>$0</span>`;
+    d.innerHTML = `<span>Remera Argentina (REGALO)<span class="giftValue">${money(products.remeras.price)}</span></span><span>$0</span>`;
     items.appendChild(d);
   }
 
   let warnings = [];
-  if(q.tazas > 0 && q.tazas < (minimums.tazas || 5)) warnings.push("Las tazas tienen compra mínima de " + (minimums.tazas || 5) + " unidades.");
-  if(q.llaveros > 0 && q.llaveros < (minimums.llaveros || 30)) warnings.push("Los llaveros 3D tienen compra mínima de " + (minimums.llaveros || 30) + " unidades.");
-  if(q.gorras > 0 && q.gorras < (minimums.gorras || 5)) warnings.push("Las gorras tienen compra mínima de " + (minimums.gorras || 5) + " unidades.");
+  activeOrder.forEach(id => {
+    if(id !== "stickers"){
+      const p = products[id];
+      const val = getQty(id);
+      const min = Number(p.min_qty || 1);
+      if(val > 0 && val < min) warnings.push(p.name + " tiene compra mínima de " + min + " unidades.");
+    }
+  });
   if(total === 0) warnings.push("Agregá productos para calcular un presupuesto estimado.");
   document.getElementById("warnings").textContent = warnings.join(" ");
 
   let msg = "Hola Studio Goen, quiero consultar por este presupuesto:%0A%0A";
   Object.keys(q).forEach(k => {
-    if(q[k] > 0) msg += `- ${names[k]}: ${q[k]} unidades · ${money(totals[k])}%0A`;
+    if(q[k] > 0){
+      let name = k === "stickers" ? "Stickers UV" : (products[k]?.name || k);
+      msg += `- ${name}: ${q[k]} unidades · ${money(totals[k])}%0A`;
+    }
   });
-
   if(benefit) msg += `%0ABeneficio por compra desbloqueado: ${benefit}%0A`;
-  if(arg) msg += `%0APromo Mundial desbloqueada: ${arg}%0A`;
+  if(arg) msg += `%0APromo desbloqueada: ${arg}%0A`;
   msg += `%0ATotal estimado: ${money(total)}%0A%0AMi negocio es:`;
-
   document.getElementById("wa").href = "https://wa.me/543416743155?text=" + msg;
 }
 
-function clearAll() {
-  ["remeras","buzos","tazas","stickers","llaveros","gorras"].forEach(id => document.getElementById(id).value = 0);
-  lastArg = false;
-  lastBenefit = "";
+function clearAll(){
+  activeOrder.forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.value = 0;
+  });
+  lastArg=false;
+  lastBenefit="";
   calculate();
 }
 
-loadSupabaseData();
+loadData();
 </script>
-
-</body></html>
+</body>
+</html>
