@@ -56,23 +56,328 @@ h1{font-size:clamp(48px,9vw,102px);line-height:.85;letter-spacing:-.07em;text-tr
 <div class="benefitBox"><h3>Beneficios por compra</h3><p id="benefitText">Te faltan $200.000 para desbloquear 20 stickers UV de regalo.</p><div class="progressOuter"><div class="progressInner" id="progress"></div></div><div class="gift" id="gift">Próximo beneficio: 20 stickers UV de regalo</div></div>
 <a class="whatsapp" id="wa" href="https://wa.me/543416743155">Enviar por WhatsApp</a><button class="clear" onclick="clearAll()">Limpiar</button></aside>
 </main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const prices={remeras:28600,buzos:59500,tazas:9900,llaveros:1500,gorras:18600};
-const names={remeras:"Remeras",buzos:"Buzos",tazas:"Tazas",stickers:"Stickers UV",llaveros:"Llaveros 3D",gorras:"Gorras"};
-const minimums={tazas:5,llaveros:30,gorras:5};
-let lastTotal=-1,lastBenefit="",lastArg=false;
-function money(n){return "$"+Math.round(n).toLocaleString("es-AR")}
-function stickerPrice(q){return q==50?20000:q==100?35000:q==300?90000:0}
-function getQty(id){return Math.max(0,parseInt(document.getElementById(id).value||"0",10))}
-function enforceMin(id,min){const input=document.getElementById(id);let v=getQty(id);if(v>0&&v<min)input.value=min}
-function changeQty(id,delta){const input=document.getElementById(id);const current=getQty(id);let next;if(delta>0&&minimums[id]&&current===0)next=minimums[id];else next=current+delta;if(next<0)next=0;if(minimums[id]&&next>0&&next<minimums[id])next=0;input.value=next;calculate()}
-function getBenefit(total){if(total>=700000)return{current:"5 tazas personalizadas de regalo",next:null,target:700000,previous:700000};if(total>=400000)return{current:"20 llaveros 3D de regalo",next:"5 tazas personalizadas de regalo",target:700000,previous:400000};if(total>=200000)return{current:"20 stickers UV de regalo",next:"20 llaveros 3D de regalo",target:400000,previous:200000};return{current:null,next:"20 stickers UV de regalo",target:200000,previous:0}}
-function bump(el){el.classList.remove("unlocked");void el.offsetWidth;el.classList.add("unlocked")}
-function updateBenefits(total){const b=getBenefit(total),txt=document.getElementById("benefitText"),bar=document.getElementById("progress"),gift=document.getElementById("gift");let range=Math.max(1,b.target-b.previous);bar.style.width=Math.min(100,Math.max(0,((total-b.previous)/range)*100))+"%";let current="";if(total<=0){txt.textContent="Te faltan $200.000 para desbloquear 20 stickers UV de regalo.";gift.textContent="Próximo beneficio: 20 stickers UV de regalo"}else if(b.current&&!b.next){txt.textContent="🎉 Beneficio máximo desbloqueado.";gift.textContent="Ganaste: "+b.current;bar.style.width="100%";current=b.current}else if(b.current){txt.textContent="🎉 Ganaste "+b.current+". Te faltan "+money(b.target-total)+" para desbloquear "+b.next+".";gift.textContent="Beneficio actual: "+b.current;current=b.current}else{txt.textContent="Te faltan "+money(b.target-total)+" para desbloquear "+b.next+".";gift.textContent="Próximo beneficio: "+b.next}if(current&&current!==lastBenefit){bump(gift);lastBenefit=current}return current}
-function starHTML(q){let on=q>=5?3:q>=3?2:q>=1?1:0;return Array.from({length:3},(_,i)=>i<on?'<span class="starOn">⭐</span>':'☆').join("")}
-function updateArgentina(qty){let pct=Math.min(100,(qty/5)*100);document.getElementById("argRowProgress").style.width=pct+"%";document.getElementById("argSummaryProgress").style.width=pct+"%";document.getElementById("argStars").innerHTML=starHTML(qty);document.getElementById("argStarsSummary").innerHTML=starHTML(qty);let unlocked=qty>=5;let msg=unlocked?"🎉 Ganaste una remera de Argentina de regalo.":"Te faltan "+(5-qty)+" remeras para desbloquear el regalo.";document.getElementById("argRowText").textContent=unlocked?"🎉 Promo desbloqueada: remera de Argentina de regalo.":msg;document.getElementById("argSummaryText").textContent=msg;if(unlocked&&!lastArg){bump(document.getElementById("argSummaryText"))}lastArg=unlocked;return unlocked?"1 remera de Argentina de regalo por Promo Mundial":""}
-function calculate(){const q={remeras:getQty("remeras"),buzos:getQty("buzos"),tazas:getQty("tazas"),stickers:getQty("stickers"),llaveros:getQty("llaveros"),gorras:getQty("gorras")};let totals={remeras:q.remeras*prices.remeras,buzos:q.buzos*prices.buzos,tazas:q.tazas*prices.tazas,stickers:stickerPrice(q.stickers),llaveros:q.llaveros*prices.llaveros,gorras:q.gorras*prices.gorras};let total=Object.values(totals).reduce((a,b)=>a+b,0);document.getElementById("total").textContent=money(total);if(total!==lastTotal){document.getElementById("totalBox").classList.remove("bump");void document.getElementById("totalBox").offsetWidth;document.getElementById("totalBox").classList.add("bump");lastTotal=total}let benefit=updateBenefits(total),arg=updateArgentina(q.remeras);const items=document.getElementById("items");items.innerHTML="";Object.keys(q).forEach(k=>{if(q[k]>0){let d=document.createElement("div");d.className="line";let label=k==="stickers"?`${names[k]} - ${q[k]} unidades`:`${names[k]} x ${q[k]}`;d.innerHTML=`<span>${label}</span><span>${money(totals[k])}</span>`;items.appendChild(d)}});if(arg){let d=document.createElement("div");d.className="line giftLine";d.innerHTML=`<span>Remera Argentina (REGALO)<span class="giftValue">${money(prices.remeras)}</span></span><span>$0</span>`;items.appendChild(d)}let warnings=[];if(q.tazas>0&&q.tazas<5)warnings.push("Las tazas tienen compra mínima de 5 unidades.");if(q.llaveros>0&&q.llaveros<30)warnings.push("Los llaveros 3D tienen compra mínima de 30 unidades.");if(q.gorras>0&&q.gorras<5)warnings.push("Las gorras tienen compra mínima de 5 unidades.");if(total===0)warnings.push("Agregá productos para calcular un presupuesto estimado.");document.getElementById("warnings").textContent=warnings.join(" ");let msg="Hola Studio Goen, quiero consultar por este presupuesto:%0A%0A";Object.keys(q).forEach(k=>{if(q[k]>0)msg+=`- ${names[k]}: ${q[k]} unidades · ${money(totals[k])}%0A`});if(benefit)msg+=`%0ABeneficio por compra desbloqueado: ${benefit}%0A`;if(arg)msg+=`%0APromo Mundial desbloqueada: ${arg}%0A`;msg+=`%0ATotal estimado: ${money(total)}%0A%0AMi negocio es:`;document.getElementById("wa").href="https://wa.me/543416743155?text="+msg}
-function clearAll(){["remeras","buzos","tazas","stickers","llaveros","gorras"].forEach(id=>document.getElementById(id).value=0);lastArg=false;lastBenefit="";calculate()}
-calculate();
+const SUPABASE_URL = "https://fojygcedkrsppdtxtylb.supabase.co";
+const SUPABASE_KEY = "sb_publishable_ROSe3WkzvkZ5Vsn932UoBg_IK6t5YZs";
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let productRows = [];
+let benefitRows = [];
+let promoRows = [];
+
+let prices = {
+  remeras: 28600,
+  buzos: 59500,
+  tazas: 9900,
+  llaveros: 1500,
+  gorras: 18600
+};
+
+let names = {
+  remeras: "Remeras",
+  buzos: "Buzos",
+  tazas: "Tazas",
+  stickers: "Stickers UV",
+  llaveros: "Llaveros 3D",
+  gorras: "Gorras"
+};
+
+let stickerPacks = {
+  50: 20000,
+  100: 35000,
+  300: 90000
+};
+
+let minimums = {
+  tazas: 5,
+  llaveros: 30,
+  gorras: 5
+};
+
+let lastTotal = -1;
+let lastBenefit = "";
+let lastArg = false;
+
+function money(n) {
+  return "$" + Math.round(n).toLocaleString("es-AR");
+}
+
+async function loadSupabaseData() {
+  try {
+    const [productsRes, benefitsRes, promosRes] = await Promise.all([
+      db.from("products").select("*").eq("active", true),
+      db.from("benefits").select("*").eq("active", true).order("min_total"),
+      db.from("promos").select("*").eq("active", true)
+    ]);
+
+    if(productsRes.error) throw productsRes.error;
+    if(benefitsRes.error) throw benefitsRes.error;
+    if(promosRes.error) throw promosRes.error;
+
+    productRows = productsRes.data || [];
+    benefitRows = productsRes.data ? (benefitsRes.data || []) : [];
+    promoRows = promosRes.data || [];
+
+    productRows.forEach(p => {
+      if(p.id === "stickers_50") stickerPacks[50] = Number(p.price);
+      else if(p.id === "stickers_100") stickerPacks[100] = Number(p.price);
+      else if(p.id === "stickers_300") stickerPacks[300] = Number(p.price);
+      else {
+        prices[p.id] = Number(p.price);
+        names[p.id] = p.name;
+        if(Number(p.min_qty) > 1) minimums[p.id] = Number(p.min_qty);
+      }
+    });
+
+    updateStaticPriceTexts();
+    calculate();
+  } catch (err) {
+    console.error("Error cargando Supabase:", err);
+    const warnings = document.getElementById("warnings");
+    if(warnings) warnings.textContent = "No se pudieron cargar los precios actualizados. Se muestran valores de referencia.";
+    calculate();
+  }
+}
+
+function updateStaticPriceTexts() {
+  const metaMap = {
+    remeras: `${money(prices.remeras)} c/u · Personalizadas para tu marca`,
+    buzos: `${money(prices.buzos)} c/u · Buzos canguro personalizados`,
+    tazas: `${money(prices.tazas)} c/u · Compra mínima: ${minimums.tazas || 5} unidades`,
+    llaveros: `${money(prices.llaveros)} c/u · Compra mínima: ${minimums.llaveros || 30} unidades`,
+    gorras: `${money(prices.gorras)} c/u · Compra mínima: ${minimums.gorras || 5} unidades`
+  };
+
+  document.querySelectorAll(".row").forEach(row => {
+    const name = row.querySelector(".name")?.textContent?.toLowerCase() || "";
+    const meta = row.querySelector(".meta");
+    if(!meta) return;
+    if(name.includes("remeras")) meta.textContent = metaMap.remeras;
+    if(name.includes("buzos")) meta.textContent = metaMap.buzos;
+    if(name.includes("tazas")) meta.textContent = metaMap.tazas;
+    if(name.includes("llaveros")) meta.textContent = metaMap.llaveros;
+    if(name.includes("gorras")) meta.textContent = metaMap.gorras;
+    if(name.includes("stickers")) meta.textContent = `Elegí pack: 50u ${money(stickerPacks[50])} · 100u ${money(stickerPacks[100])} · 300u ${money(stickerPacks[300])}`;
+  });
+}
+
+function stickerPrice(q) {
+  return stickerPacks[q] || 0;
+}
+
+function getQty(id) {
+  return Math.max(0, parseInt(document.getElementById(id).value || "0", 10));
+}
+
+function enforceMin(id, min) {
+  const input = document.getElementById(id);
+  let v = getQty(id);
+  if(v > 0 && v < min) input.value = min;
+}
+
+function changeQty(id, delta) {
+  const input = document.getElementById(id);
+  const current = getQty(id);
+  let next;
+
+  if(delta > 0 && minimums[id] && current === 0) next = minimums[id];
+  else next = current + delta;
+
+  if(next < 0) next = 0;
+  if(minimums[id] && next > 0 && next < minimums[id]) next = 0;
+
+  input.value = next;
+  calculate();
+}
+
+function getBenefit(total) {
+  if(!benefitRows.length) {
+    if(total >= 700000) return {current:"5 tazas personalizadas de regalo",next:null,target:700000,previous:700000};
+    if(total >= 400000) return {current:"20 llaveros 3D de regalo",next:"5 tazas personalizadas de regalo",target:700000,previous:400000};
+    if(total >= 200000) return {current:"20 stickers UV de regalo",next:"20 llaveros 3D de regalo",target:400000,previous:200000};
+    return {current:null,next:"20 stickers UV de regalo",target:200000,previous:0};
+  }
+
+  const rows = [...benefitRows].sort((a,b)=>Number(a.min_total)-Number(b.min_total));
+  let current = null;
+  let next = rows[0] || null;
+
+  for(let i=0;i<rows.length;i++) {
+    if(total >= Number(rows[i].min_total)) {
+      current = rows[i];
+      next = rows[i+1] || null;
+    }
+  }
+
+  if(current && !next) return {current: current.gift, next:null, target:Number(current.min_total), previous:Number(current.min_total)};
+  if(current && next) return {current: current.gift, next: next.gift, target:Number(next.min_total), previous:Number(current.min_total)};
+  return {current:null, next: next.gift, target:Number(next.min_total), previous:0};
+}
+
+function bump(el) {
+  el.classList.remove("unlocked");
+  void el.offsetWidth;
+  el.classList.add("unlocked");
+}
+
+function updateBenefits(total) {
+  const b = getBenefit(total);
+  const txt = document.getElementById("benefitText");
+  const bar = document.getElementById("progress");
+  const gift = document.getElementById("gift");
+
+  let range = Math.max(1, b.target - b.previous);
+  bar.style.width = Math.min(100, Math.max(0, ((total - b.previous) / range) * 100)) + "%";
+
+  let current = "";
+
+  if(total <= 0) {
+    txt.textContent = "Te faltan " + money(b.target) + " para desbloquear " + b.next + ".";
+    gift.textContent = "Próximo beneficio: " + b.next;
+  } else if(b.current && !b.next) {
+    txt.textContent = "🎉 Beneficio máximo desbloqueado.";
+    gift.textContent = "Ganaste: " + b.current;
+    bar.style.width = "100%";
+    current = b.current;
+  } else if(b.current) {
+    txt.textContent = "🎉 Ganaste " + b.current + ". Te faltan " + money(b.target - total) + " para desbloquear " + b.next + ".";
+    gift.textContent = "Beneficio actual: " + b.current;
+    current = b.current;
+  } else {
+    txt.textContent = "Te faltan " + money(b.target - total) + " para desbloquear " + b.next + ".";
+    gift.textContent = "Próximo beneficio: " + b.next;
+  }
+
+  if(current && current !== lastBenefit) {
+    bump(gift);
+    lastBenefit = current;
+  }
+
+  return current;
+}
+
+function getWorldPromo() {
+  return promoRows.find(p => p.id === "promo_mundial") || {
+    name: "Promo Mundial",
+    trigger_product: "remeras",
+    trigger_qty: 5,
+    gift: "1 remera de Argentina de regalo",
+    active: true
+  };
+}
+
+function starHTML(q) {
+  const promo = getWorldPromo();
+  const needed = Number(promo.trigger_qty || 5);
+  let on = q >= needed ? 3 : q >= Math.ceil(needed * 0.6) ? 2 : q >= 1 ? 1 : 0;
+  return Array.from({length:3}, (_,i)=>i<on?'<span class="starOn">⭐</span>':'☆').join("");
+}
+
+function updateArgentina(qty) {
+  const promo = getWorldPromo();
+  const needed = Number(promo.trigger_qty || 5);
+  const gift = promo.gift || "1 remera de Argentina de regalo";
+
+  let pct = Math.min(100, (qty / needed) * 100);
+  document.getElementById("argRowProgress").style.width = pct + "%";
+  document.getElementById("argSummaryProgress").style.width = pct + "%";
+  document.getElementById("argStars").innerHTML = starHTML(qty);
+  document.getElementById("argStarsSummary").innerHTML = starHTML(qty);
+
+  let unlocked = qty >= needed;
+  let msg = unlocked ? "🎉 Ganaste " + gift + "." : "Te faltan " + (needed - qty) + " remeras para desbloquear el regalo.";
+
+  document.getElementById("argRowText").textContent = unlocked ? "🎉 Promo desbloqueada: " + gift + "." : msg;
+  document.getElementById("argSummaryText").textContent = msg;
+
+  if(unlocked && !lastArg) bump(document.getElementById("argSummaryText"));
+  lastArg = unlocked;
+
+  return unlocked ? gift + " por " + promo.name : "";
+}
+
+function calculate() {
+  const q = {
+    remeras: getQty("remeras"),
+    buzos: getQty("buzos"),
+    tazas: getQty("tazas"),
+    stickers: getQty("stickers"),
+    llaveros: getQty("llaveros"),
+    gorras: getQty("gorras")
+  };
+
+  let totals = {
+    remeras: q.remeras * prices.remeras,
+    buzos: q.buzos * prices.buzos,
+    tazas: q.tazas * prices.tazas,
+    stickers: stickerPrice(q.stickers),
+    llaveros: q.llaveros * prices.llaveros,
+    gorras: q.gorras * prices.gorras
+  };
+
+  let total = Object.values(totals).reduce((a,b)=>a+b,0);
+  document.getElementById("total").textContent = money(total);
+
+  if(total !== lastTotal) {
+    const box = document.getElementById("totalBox");
+    box.classList.remove("bump");
+    void box.offsetWidth;
+    box.classList.add("bump");
+    lastTotal = total;
+  }
+
+  let benefit = updateBenefits(total);
+  let arg = updateArgentina(q.remeras);
+
+  const items = document.getElementById("items");
+  items.innerHTML = "";
+
+  Object.keys(q).forEach(k => {
+    if(q[k] > 0) {
+      let d = document.createElement("div");
+      d.className = "line";
+      let label = k === "stickers" ? `${names[k]} - ${q[k]} unidades` : `${names[k]} x ${q[k]}`;
+      d.innerHTML = `<span>${label}</span><span>${money(totals[k])}</span>`;
+      items.appendChild(d);
+    }
+  });
+
+  if(arg) {
+    let d = document.createElement("div");
+    d.className = "line giftLine";
+    d.innerHTML = `<span>Remera Argentina (REGALO)<span class="giftValue">${money(prices.remeras)}</span></span><span>$0</span>`;
+    items.appendChild(d);
+  }
+
+  let warnings = [];
+  if(q.tazas > 0 && q.tazas < (minimums.tazas || 5)) warnings.push("Las tazas tienen compra mínima de " + (minimums.tazas || 5) + " unidades.");
+  if(q.llaveros > 0 && q.llaveros < (minimums.llaveros || 30)) warnings.push("Los llaveros 3D tienen compra mínima de " + (minimums.llaveros || 30) + " unidades.");
+  if(q.gorras > 0 && q.gorras < (minimums.gorras || 5)) warnings.push("Las gorras tienen compra mínima de " + (minimums.gorras || 5) + " unidades.");
+  if(total === 0) warnings.push("Agregá productos para calcular un presupuesto estimado.");
+  document.getElementById("warnings").textContent = warnings.join(" ");
+
+  let msg = "Hola Studio Goen, quiero consultar por este presupuesto:%0A%0A";
+  Object.keys(q).forEach(k => {
+    if(q[k] > 0) msg += `- ${names[k]}: ${q[k]} unidades · ${money(totals[k])}%0A`;
+  });
+
+  if(benefit) msg += `%0ABeneficio por compra desbloqueado: ${benefit}%0A`;
+  if(arg) msg += `%0APromo Mundial desbloqueada: ${arg}%0A`;
+  msg += `%0ATotal estimado: ${money(total)}%0A%0AMi negocio es:`;
+
+  document.getElementById("wa").href = "https://wa.me/543416743155?text=" + msg;
+}
+
+function clearAll() {
+  ["remeras","buzos","tazas","stickers","llaveros","gorras"].forEach(id => document.getElementById(id).value = 0);
+  lastArg = false;
+  lastBenefit = "";
+  calculate();
+}
+
+loadSupabaseData();
 </script>
+
 </body></html>
